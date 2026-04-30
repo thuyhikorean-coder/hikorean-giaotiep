@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hi Korean - E-learning Giao Tiếp</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Màn hình đăng nhập / Đăng ký -->
+    <div id="auth-screen" class="auth-container">
+        <div class="auth-box">
+            <img src="https://hikorean.vn/wp-content/uploads/2023/10/Logo-Hi-Korean.png" alt="Hi Korean Logo" class="logo">
+            <h2>Hệ Thống E-Learning</h2>
+            <p class="subtitle">Đăng nhập để vào học 54 Video Giao Tiếp</p>
+            
+            <form id="login-form">
+                <div class="input-group">
+                    <label>Email / Số điện thoại</label>
+                    <input type="text" id="email" placeholder="Nhập email của bạn" required>
+                </div>
+                <div class="input-group">
+                    <label>Mật khẩu</label>
+                    <input type="password" id="password" placeholder="Nhập mật khẩu" required>
+                </div>
+                <button type="submit" class="primary-btn">Đăng Nhập</button>
+                <p class="register-hint">Chưa có tài khoản? <a href="#" id="show-register">Đăng ký ngay</a></p>
+            </form>
+            
+            <div class="community-links mt-10">
+                <p>Tham gia cộng đồng Hi Korean:</p>
+                <div class="social-buttons">
+                    <a href="https://zalo.me/g/dseujm743" target="_blank" class="social-btn zalo-btn">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Icon_of_Zalo.svg/1200px-Icon_of_Zalo.svg.png" alt="Zalo" width="20">
+                        Zalo Hỗ Trợ
+                    </a>
+                    <a href="https://www.facebook.com/groups/1491006069337574" target="_blank" class="social-btn fb-btn">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Facebook_Logo_%282019%29.png/1024px-Facebook_Logo_%282019%29.png" alt="Facebook" width="20">
+                        Cộng đồng FB
+                    </a>
+                </div>
+            </div>
+
+            <div id="pending-msg" class="hidden alert warning">
+                Tài khoản của bạn đang chờ Admin duyệt. Vui lòng liên hệ hỗ trợ.
+            </div>
+        </div>
+    </div>
+
+    <!-- Màn hình Dashboard (Ẩn ban đầu) -->
+    <div id="dashboard-screen" class="dashboard-layout hidden">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <img src="https://hikorean.vn/wp-content/uploads/2023/10/Logo-Hi-Korean.png" alt="Hi Korean Logo">
+            </div>
+            <nav class="sidebar-nav">
+                <a href="#" class="active"><i class="icon">📚</i> Khóa học của tôi</a>
+                <a href="#"><i class="icon">👤</i> Tài khoản</a>
+                <a href="#" id="logout-btn"><i class="icon">🚪</i> Đăng xuất</a>
+            </nav>
+        </aside>
+
+        <!-- Nội dung chính -->
+        <main class="main-content">
+            <header class="top-header">
+                <h1>Khóa Học Giao Tiếp Thực Chiến</h1>
+                <div class="user-profile">
+                    <span id="user-name">Học viên</span>
+                    <div class="avatar">HV</div>
+                </div>
+            </header>
+
+            <div class="course-container">
+                <!-- Khu vực Video Player -->
+                <div class="video-section">
+                    <div class="video-wrapper">
+                        <iframe id="main-video-player" src="https://www.youtube.com/embed/JhcjMk7X88E" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    </div>
+                    <h2 id="current-video-title">Day 1: Chào hỏi cơ bản</h2>
+                    <div class="video-actions">
+                        <button id="mark-complete-btn" class="success-btn">✅ Đánh dấu hoàn thành</button>
+                    </div>
+                </div>
+
+                <!-- Danh sách bài học -->
+                <div class="playlist-section">
+                    <div class="playlist-header">
+                        <h3>Danh sách bài học (54 Video)</h3>
+                        <div class="progress-bar-container">
+                            <div class="progress-info">
+                                <span>Tiến độ học tập</span>
+                                <span id="progress-text">0/54 (0%)</span>
+                            </div>
+                            <div class="progress-bg">
+                                <div id="progress-fill" class="progress-fill" style="width: 0%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="table-container">
+                        <table class="lesson-table">
+                            <thead>
+                                <tr>
+                                    <th>Bài học</th>
+                                    <th>Trạng thái</th>
+                                    <th>Bài tập</th>
+                                </tr>
+                            </thead>
+                            <tbody id="lesson-list">
+                                <!-- Rendered by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal QR Code -->
+    <div id="qr-modal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-btn" id="close-modal">&times;</span>
+            <h3>Mở Khóa Bài Tập</h3>
+            <p>Vui lòng chuyển khoản để nhận mật khẩu/link mở khóa bài tập cho <strong id="modal-lesson-name"></strong>.</p>
+            
+            <div class="qr-box">
+                <!-- Replace with dynamic VietQR image -->
+                <img src="https://img.vietqr.io/image/970436-0988415497-compact2.png?amount=50000&addInfo=HocPhi" alt="QR Code Thanh Toán">
+            </div>
+            
+            <div class="payment-info">
+                <p><strong>Ngân hàng:</strong> Vietcombank</p>
+                <p><strong>Số tài khoản:</strong> 0988415497</p>
+                <p><strong>Chủ tài khoản:</strong> ĐẶNG THỊ VUI</p>
+                <p><strong>Nội dung:</strong> <span class="highlight">SĐT_Tên_BaiTap</span></p>
+            </div>
+            
+            <button class="primary-btn mt-10" id="notify-paid-btn">Tôi đã chuyển khoản</button>
+        </div>
+    </div>
+
+    <script src="data.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
