@@ -64,18 +64,23 @@ a:hover { text-decoration: underline; }
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+    background-color: #FDF8E7; /* Creamy Yellow matching dashboard */
+    background-image: url('korean_bg.png'); /* Traditional pattern */
+    background-size: 300px;
+    background-blend-mode: multiply;
 }
 .auth-box {
-    background: var(--card-bg);
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(8px);
     padding: 40px;
     border-radius: 12px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+    box-shadow: 0 10px 30px rgba(56, 29, 19, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.5);
     width: 100%;
     max-width: 400px;
     text-align: center;
 }
-.auth-box .logo { width: 120px; margin-bottom: 20px; }
+.auth-box .logo { width: 140px; margin-bottom: 20px; mix-blend-mode: multiply; }
 .auth-box h2 { font-size: 1.5rem; margin-bottom: 5px; }
 .subtitle { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 25px; }
 
