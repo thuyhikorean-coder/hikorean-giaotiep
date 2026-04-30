@@ -1,13 +1,13 @@
 :root {
-    --primary-color: #8B5E34; /* Elegant Brown */
-    --secondary-color: #DDA15E; /* Warm Gold Accent */
-    --bg-color: #FEFAE0; /* Light Yellow / Cream */
+    --primary-color: #381D13; /* Nâu Đậm (Very Dark Brown) */
+    --secondary-color: #F8C300; /* Vàng Tươi (Vibrant Yellow) */
+    --bg-color: #FFFDF8; /* Nền Vàng Nhạt Trắng */
     --card-bg: #FFFFFF;
-    --text-main: #4A3B32; /* Dark Brown Text */
-    --text-muted: #8C7C73; /* Muted Brown Text */
-    --border-color: #E9E1D3; /* Warm soft border */
-    --success-color: #606C38; /* Earthy Green for success */
-    --danger-color: #BC4749; /* Earthy Red for danger */
+    --text-main: #381D13; /* Chữ Nâu Đậm */
+    --text-muted: #796156; /* Chữ Nâu Nhạt */
+    --border-color: #E8DCCB; /* Viền Nâu Nhạt */
+    --success-color: #B4842E; /* Vàng Nhạt (thay cho Xanh lá) */
+    --danger-color: #D34345; /* Đỏ để báo lỗi */
     --font-family: 'Inter', sans-serif;
 }
 
@@ -193,11 +193,26 @@ a:hover { text-decoration: underline; }
 .user-profile { display: flex; align-items: center; gap: 10px; }
 .avatar {
     width: 35px; height: 35px;
-    background: var(--primary-color);
-    color: white;
+    background: var(--secondary-color);
+    color: var(--primary-color);
     border-radius: 50%;
     display: flex; justify-content: center; align-items: center;
     font-weight: bold; font-size: 0.9rem;
+}
+.logout-btn {
+    background: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.logout-btn:hover {
+    background: var(--primary-color);
+    color: #fff;
+    border-color: var(--primary-color);
 }
 
 .course-container {
