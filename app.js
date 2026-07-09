@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const loginForm = document.getElementById('login-form');
     const pendingMsg = document.getElementById('pending-msg');
     const userNameDisplay = document.getElementById('user-name');
-    const logoutBtn = document.getElementById('logout-btn');
+    const logoutBtns = document.querySelectorAll('#logout-btn, .logout-btn');
     
     const lessonList = document.getElementById('lesson-list');
     const mainVideoPlayer = document.getElementById('main-video-player');
@@ -77,6 +77,26 @@ document.addEventListener('DOMContentLoaded', () => {
         submitBtn.textContent = "Đang xử lý...";
         pendingMsg.classList.add('hidden');
 
+        if (!isRegisterMode && email.endsWith('@10video')) {
+            if (password !== "hikorean123") {
+                alert("Sai mật khẩu truy cập 10 video.");
+                submitBtn.disabled = false;
+                submitBtn.textContent = "Đăng Nhập";
+                return;
+            }
+            currentUser = email.split('@')[0];
+            userNameDisplay.textContent = currentUser;
+            localStorage.setItem('hikorean_session', currentUser);
+            localStorage.setItem('hikorean_plan', 'TRIAL');
+            
+            authScreen.classList.add('hidden');
+            dashboardScreen.classList.remove('hidden');
+            submitBtn.disabled = false;
+            submitBtn.textContent = "Đăng Nhập";
+            initDashboard();
+            return;
+        }
+
         try {
             const response = await fetch(API_URL, {
                 method: "POST",
@@ -92,33 +112,52 @@ document.addEventListener('DOMContentLoaded', () => {
             const result = await response.json();
             
             if (result.status === "error") {
-                alert(result.message);
+                if (result.message && result.message.toLowerCase().includes("chờ duyệt")) {
+                    pendingMsg.textContent = result.message;
+                    pendingMsg.classList.remove('hidden');
+                } else {
+                    alert(result.message);
+                }
                 submitBtn.disabled = false;
                 submitBtn.textContent = isRegisterMode ? "Đăng Ký Tài Khoản" : "Đăng Nhập";
                 return;
             }
 
-            if (isRegisterMode) {
-                alert(result.message);
-                isRegisterMode = false;
-                submitBtn.textContent = "Đăng Nhập";
-                showRegisterBtn.textContent = "Đăng ký ngay";
-                subtitle.textContent = "Đăng nhập để vào học 54 Video Giao Tiếp";
-                submitBtn.disabled = false;
+            if (result.status === "success") {
+                if (isRegisterMode) {
+                    alert(result.message || "Đăng ký thành công! Vui lòng chờ Admin duyệt.");
+                    isRegisterMode = false;
+                    submitBtn.textContent = "Đăng Nhập";
+                    showRegisterBtn.textContent = "Đăng ký ngay";
+                    subtitle.textContent = "Đăng nhập để vào học 54 Video Giao Tiếp";
+                    submitBtn.disabled = false;
+                } else {
+                    if (result.userStatus && result.userStatus !== "Approved") {
+                        pendingMsg.classList.remove('hidden');
+                        pendingMsg.textContent = "Tài khoản của bạn đang chờ Admin duyệt. Vui lòng liên hệ hỗ trợ.";
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = "Đăng Nhập";
+                        return;
+                    }
+
+                    // Login thành công
+                    currentUser = email.split('@')[0];
+                    userNameDisplay.textContent = currentUser;
+                    
+                    // Lưu lại phiên đăng nhập
+                    localStorage.setItem('hikorean_session', currentUser);
+                    
+                    authScreen.classList.add('hidden');
+                    dashboardScreen.classList.remove('hidden');
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = "Đăng Nhập";
+                    
+                    initDashboard();
+                }
             } else {
-                // Login thành công
-                currentUser = email.split('@')[0];
-                userNameDisplay.textContent = currentUser;
-                
-                // Lưu lại phiên đăng nhập
-                localStorage.setItem('hikorean_session', currentUser);
-                
-                authScreen.classList.add('hidden');
-                dashboardScreen.classList.remove('hidden');
+                alert("Phản hồi từ máy chủ không hợp lệ. Vui lòng thử lại!");
                 submitBtn.disabled = false;
-                submitBtn.textContent = "Đăng Nhập";
-                
-                initDashboard();
+                submitBtn.textContent = isRegisterMode ? "Đăng Ký Tài Khoản" : "Đăng Nhập";
             }
         } catch (error) {
             alert("Lỗi kết nối máy chủ. Vui lòng thử lại!");
@@ -127,14 +166,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    logoutBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        currentUser = null;
-        localStorage.removeItem('hikorean_session'); // Xóa phiên đăng nhập
-        dashboardScreen.classList.add('hidden');
-        authScreen.classList.remove('hidden');
-        loginForm.reset();
-        pendingMsg.classList.add('hidden');
+    logoutBtns.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            currentUser = null;
+            localStorage.removeItem('hikorean_session'); // Xóa phiên đăng nhập
+            dashboardScreen.classList.add('hidden');
+            authScreen.classList.remove('hidden');
+            loginForm.reset();
+            pendingMsg.classList.add('hidden');
+            if (mainVideoPlayer) mainVideoPlayer.src = ""; // Dừng video
+        });
     });
 
     // ================= DASHBOARD & VIDEO LOGIC =================
@@ -145,32 +187,42 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function renderPlaylist() {
+        const plan = localStorage.getItem('hikorean_plan') || 'VIP';
         lessonList.innerHTML = '';
         videoData.forEach((video, index) => {
             const isCompleted = userProgress[video.id];
             const isTaskUnlocked = unlockedTasks[video.id];
             
+            const isLocked = plan === 'TRIAL' && index >= 10;
+            
             const tr = document.createElement('tr');
-            tr.className = index === currentVideoIndex ? 'playing' : '';
+            let className = index === currentVideoIndex ? 'playing' : '';
+            if (isLocked) className += ' locked-lesson';
+            tr.className = className.trim();
+            
             tr.onclick = (e) => {
                 // Không trigger play nếu click vào nút bài tập
                 if(!e.target.closest('button')) {
-                    playVideo(index);
+                    if (isLocked) {
+                        alert("Vui lòng nâng cấp tài khoản để học tiếp các bài này!");
+                    } else {
+                        playVideo(index);
+                    }
                 }
             };
             
             tr.innerHTML = `
                 <td>
                     ${index === currentVideoIndex ? '▶ ' : ''}
-                    ${video.title}
+                    ${video.title} ${isLocked ? '🔒' : ''}
                 </td>
                 <td>
                     <span class="status-badge ${isCompleted ? 'completed' : 'pending'}">
-                        ${isCompleted ? 'Hoàn thành' : 'Chưa học'}
+                        ${isCompleted ? 'Hoàn thành' : (isLocked ? 'Khóa' : 'Chưa học')}
                     </span>
                 </td>
                 <td>
-                    <button class="task-btn ${isTaskUnlocked ? 'unlocked' : ''}" data-id="${video.id}" data-title="${video.title}">
+                    <button class="task-btn ${isTaskUnlocked ? 'unlocked' : ''}" data-id="${video.id}" data-title="${video.title}" ${isLocked ? 'disabled' : ''}>
                         ${isTaskUnlocked ? 'Xem bài tập' : '🔒 Mở bài tập'}
                     </button>
                 </td>
@@ -190,6 +242,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function playVideo(index) {
+        const plan = localStorage.getItem('hikorean_plan') || 'VIP';
+        if (plan === 'TRIAL' && index >= 10) {
+            alert("Vui lòng nâng cấp tài khoản để học tiếp các bài này!");
+            return;
+        }
+
         currentVideoIndex = index;
         const video = videoData[index];
         mainVideoPlayer.src = video.url;
@@ -222,8 +280,14 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     function updateProgress() {
-        const total = videoData.length;
-        const completed = Object.keys(userProgress).length;
+        const plan = localStorage.getItem('hikorean_plan') || 'VIP';
+        const total = plan === 'TRIAL' ? 10 : videoData.length;
+        
+        let completed = 0;
+        for (let i = 0; i < total; i++) {
+            if (userProgress[videoData[i].id]) completed++;
+        }
+        
         const percent = Math.round((completed / total) * 100);
         
         progressText.textContent = `${completed}/${total} (${percent}%)`;

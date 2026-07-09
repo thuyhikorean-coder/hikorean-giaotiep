@@ -283,6 +283,7 @@ a:hover { text-decoration: underline; }
 .lesson-table tr:hover { background: #f9f9f9; }
 .lesson-table tr.playing { background: rgba(139, 94, 52, 0.08); }
 .lesson-table tr.playing td:first-child { color: var(--primary-color); font-weight: 600; }
+.lesson-table tr.locked-lesson { opacity: 0.5; pointer-events: none; cursor: not-allowed; background: #f5f5f5; }
 
 .status-badge {
     padding: 3px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; display: inline-block;
